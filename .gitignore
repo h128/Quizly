@@ -22,6 +22,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+.vs/
+.vscode/
+Properties/
 
 # .NET Core
 project.lock.json
