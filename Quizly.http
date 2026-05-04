@@ -1,0 +1,261 @@
+### Quizly API Testing
+### .NET 10 Identity API Endpoints
+### Base URL: http://localhost:5276
+
+@baseUrl = http://localhost:5276
+@contentType = application/json
+
+### Variables for storing tokens
+@accessToken = 
+@refreshToken = 
+
+###############################################
+# Health & Status
+###############################################
+
+### Health Check
+GET {{baseUrl}}/api/health
+Accept: application/json
+
+###############################################
+# User Registration
+###############################################
+
+### Register New User
+# @name register
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "email": "hesmaeily@quizly.com",
+  "password": "Demo@12345"
+}
+
+### Register Another User (for testing)
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com",
+  "password": "SecurePass@123"
+}
+
+###############################################
+# Authentication
+###############################################
+
+### Login - Get Access Token
+# @name login
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "demo@quizly.com",
+  "password": "Demo@12345"
+}
+
+### Login with Cookie Authentication
+POST {{baseUrl}}/login?useCookies=true
+Content-Type: {{contentType}}
+
+{
+  "email": "demo@quizly.com",
+  "password": "Demo@12345"
+}
+
+### Refresh Access Token
+# Use the refreshToken from login response
+POST {{baseUrl}}/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###############################################
+# Password Management
+###############################################
+
+### Forgot Password - Request Reset
+POST {{baseUrl}}/forgotPassword
+Content-Type: {{contentType}}
+
+{
+  "email": "demo@quizly.com"
+}
+
+### Reset Password
+# Note: In development, check console logs for the reset code
+POST {{baseUrl}}/resetPassword
+Content-Type: {{contentType}}
+
+{
+  "email": "demo@quizly.com",
+  "resetCode": "PASTE_CODE_FROM_EMAIL_OR_LOGS",
+  "newPassword": "NewDemo@12345"
+}
+
+###############################################
+# Email Confirmation
+###############################################
+
+### Resend Email Confirmation
+POST {{baseUrl}}/resendConfirmationEmail
+Content-Type: {{contentType}}
+
+{
+  "email": "demo@quizly.com"
+}
+
+### Confirm Email
+# Note: Replace userId and code with actual values from email
+GET {{baseUrl}}/confirmEmail?userId=USER_ID&code=CONFIRMATION_CODE
+
+###############################################
+# User Management (Protected - Requires Auth)
+###############################################
+
+### Get User Info (Protected)
+GET {{baseUrl}}/manage/info
+Authorization: Bearer {{accessToken}}
+
+### Update User Info (Protected)
+POST {{baseUrl}}/manage/info
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "newEmail": "newemail@quizly.com",
+  "oldPassword": "Demo@12345",
+  "newPassword": "NewDemo@67890"
+}
+
+### Update Email Only (Protected)
+POST {{baseUrl}}/manage/info
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "newEmail": "updated@quizly.com"
+}
+
+###############################################
+# Two-Factor Authentication (Protected)
+###############################################
+
+### Get 2FA Info
+POST {{baseUrl}}/manage/2fa
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{}
+
+###############################################
+# Custom Endpoints
+###############################################
+
+### Get User Profile (Protected - Custom Endpoint)
+GET {{baseUrl}}/api/profile
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###############################################
+# Test Scenarios
+###############################################
+
+### Scenario 1: Complete Registration Flow
+# 1. Register new user
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser@example.com",
+  "password": "Test@12345"
+}
+
+### 2. Login with new user
+# @name testLogin
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser@example.com",
+  "password": "Test@12345"
+}
+
+### 3. Access protected endpoint
+GET {{baseUrl}}/api/profile
+Authorization: Bearer {{testLogin.response.body.accessToken}}
+
+###############################################
+# Error Testing
+###############################################
+
+### Test: Invalid Credentials
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "demo@quizly.com",
+  "password": "WrongPassword"
+}
+
+### Test: Access Protected Endpoint Without Token (Should return 401)
+GET {{baseUrl}}/api/profile
+
+### Test: Register with Weak Password
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "email": "weak@example.com",
+  "password": "weak"
+}
+
+### Test: Register with Invalid Email
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "email": "invalid-email",
+  "password": "Test@12345"
+}
+
+### Test: Duplicate Registration
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "email": "demo@quizly.com",
+  "password": "Demo@12345"
+}
+
+###############################################
+# PowerShell Examples (for reference)
+###############################################
+
+# Register User
+# $body = @{ email = "user@example.com"; password = "Pass@123" } | ConvertTo-Json
+# Invoke-RestMethod -Uri "http://localhost:5276/register" -Method Post -Body $body -ContentType "application/json"
+
+# Login
+# $body = @{ email = "user@example.com"; password = "Pass@123" } | ConvertTo-Json
+# $response = Invoke-RestMethod -Uri "http://localhost:5276/login" -Method Post -Body $body -ContentType "application/json"
+# $token = $response.accessToken
+
+# Access Protected Endpoint
+# $headers = @{ Authorization = "Bearer $token" }
+# Invoke-RestMethod -Uri "http://localhost:5276/api/profile" -Method Get -Headers $headers
+
+###############################################
+# cURL Examples (for reference)
+###############################################
+
+# Register:
+# curl -X POST http://localhost:5276/register -H "Content-Type: application/json" -d '{"email":"user@example.com","password":"Pass@123"}'
+
+# Login:
+# curl -X POST http://localhost:5276/login -H "Content-Type: application/json" -d '{"email":"user@example.com","password":"Pass@123"}'
+
+# Protected Endpoint:
+# curl -X GET http://localhost:5276/api/profile -H "Authorization: Bearer YOUR_TOKEN_HERE"
