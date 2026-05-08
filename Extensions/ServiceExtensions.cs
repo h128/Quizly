@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Quizly.Data;
+using Quizly.Data.Queries;
 using Quizly.Domain;
 
 namespace Quizly.Extensions;
@@ -14,6 +15,8 @@ public static class ServiceExtensions
 
         services.AddDbContext<QuizlyDbContext>(options =>
             options.UseSqlite(connectionString));
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<QuizlyDbContext>());
+        services.AddScoped<IFolderQueries, DbContextFolderQueries>();
 
         return services;
     }

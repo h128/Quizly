@@ -4,12 +4,12 @@ using Quizly.Domain;
 
 namespace Quizly.Data;
 
-public class QuizlyDbContext : IdentityDbContext<QuizlyUser>
+public partial class QuizlyDbContext(DbContextOptions<QuizlyDbContext> options) : IdentityDbContext<QuizlyUser>(options), IUnitOfWork
 {
-    public QuizlyDbContext(DbContextOptions<QuizlyDbContext> options)
-        : base(options)
-    {
-    }
+    public DbSet<Folder> Folders => Set<Folder>();
+
+    public IRepository<TAggregate, TKey> GetRepository<TAggregate, TKey>() where TAggregate : class
+    => (IRepository<TAggregate, TKey>)this;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
