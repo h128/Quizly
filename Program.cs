@@ -1,4 +1,5 @@
 using Quizly.Domain;
+using Quizly.EndPoints;
 using Quizly.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,5 +33,6 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 
 app.MapIdentityApi<QuizlyUser>();
+app.MapFolderEndpoints();
 
 app.Run();

@@ -154,6 +154,40 @@ Content-Type: {{contentType}}
 # Custom Endpoints
 ###############################################
 
+### Get Folders (authenticated)
+GET {{baseUrl}}/api/folders
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Create Folder (authenticated)
+# @name createFolder
+POST {{baseUrl}}/api/folders
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "General Knowledge"
+}
+
+### Get Folder By Id (authenticated)
+GET {{baseUrl}}/api/folders/{{createFolder.response.body.id}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Update Folder (authenticated)
+PUT {{baseUrl}}/api/folders/{{createFolder.response.body.id}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "General Knowledge (Updated)"
+}
+
+### Get Folders After Create
+GET {{baseUrl}}/api/folders
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
 ### Get User Profile (Protected - Custom Endpoint)
 GET {{baseUrl}}/api/profile
 Authorization: Bearer {{accessToken}}
